@@ -1,0 +1,7 @@
+Flask
+pandas
+openpyxl
+requests
+opencv-python
+ultralytics
+mysql-connector-python

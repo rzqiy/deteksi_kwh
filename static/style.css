@@ -1,0 +1,238 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+:root {
+  --primary-color: #11909b;
+  --primary-dark-color: #0e7880;
+  --dark-color: #2d3748;
+  --text-color: #4a5568;
+  --heading-color: #1a202c;
+  --background-color: #f7fafc;
+  --border-color: #e2e8f0;
+  --card-background-opaque: #ffffff;
+}
+
+body {
+  background-color: var(--background-color);
+  font-family: "Inter", sans-serif;
+  color: var(--text-color);
+  font-size: 15px;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* --- Sidebar --- */
+.sidebar {
+  background-color: var(--dark-color) !important;
+  box-shadow: 1px 0 15px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar .navbar-brand {
+  font-size: 1.1rem;
+}
+
+.sidebar .nav-link {
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s ease-in-out;
+  color: #a0aec0 !important;
+}
+
+.sidebar .nav-link.active,
+.sidebar .nav-link:hover {
+  background-color: var(--primary-color);
+  color: white !important;
+}
+
+/* --- Main Content Layout --- */
+.main-content {
+  position: relative;
+  z-index: 1;
+  background-color: transparent;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+/* Latar Belakang Gradien di Belakang Konten */
+.header-gradient {
+  background-image: linear-gradient(
+    to bottom,
+    var(--primary-color),
+    var(--background-color)
+  );
+  height: 250px;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+.main-content .container-fluid {
+  position: relative;
+  z-index: 2;
+}
+
+/* Judul di Atas Kartu */
+.header-title {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+.header-title h4 {
+  color: white;
+}
+.header-title p {
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 0;
+  font-size: 0.95rem;
+}
+
+/* Kartu "Mengambang" */
+.card {
+  margin-top: 20px;
+  backdrop-filter: saturate(200%) blur(30px);
+  background-color: rgba(255, 255, 255, 0.85);
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* --- Buttons --- */
+.btn {
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark-color);
+  border-color: var(--primary-dark-color);
+  transform: translateY(-1px);
+}
+
+.btn-outline-primary {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+.btn-outline-primary:hover,
+.btn-outline-primary.active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-success {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.btn-success:hover {
+  background-color: #218838;
+  border-color: #218838;
+}
+
+/* --- Table --- */
+.table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table thead th {
+  background-color: transparent;
+  border-bottom: 2px solid var(--border-color);
+  color: var(--heading-color);
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+}
+
+.table td {
+  padding: 1rem 0.75rem;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+  background-color: rgba(240, 249, 250, 0.5);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(230, 245, 247, 0.6);
+}
+
+/* --- Modals --- */
+.modal-content {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  background-color: var(--card-background-opaque);
+}
+
+.modal-header {
+  background-color: #f8fafc;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-dialog-image {
+  position: absolute;
+  top: 50px;
+  left: 100px;
+}
+
+/* Kartu hasil di dalam modal */
+.card-result {
+  background-color: var(--card-background-opaque);
+  border: 1px solid var(--border-color);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-result:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.07);
+}
+
+/* --- Sticky Elements --- */
+.sticky-header {
+  position: sticky;
+  top: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 2;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.table-responsive {
+  overflow-y: auto;
+  flex-grow: 1;
+  max-height: calc(
+    100vh - 230px
+  ); /* Adjusted to fill space and push Save button to bottom */
+}
+
+.sticky-footer {
+  position: sticky;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 2;
+  padding: 0.5rem;
+  border-top: 1px solid var(--border-color);
+}

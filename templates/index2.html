@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="icon"
+      href="{{ url_for('static', filename='pln.jpeg') }}"
+      type="image/x-icon"
+    />
+    <title>Dashboard | Sistem Deteksi Angka Stand KWH Meter</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
+    />
+    <link rel="stylesheet" href="/static/style.css" />
+    <style>
+      .image-container {
+        overflow: auto;
+        max-height: 60vh;
+      }
+      .image-container img {
+        transition: transform 0.3s ease;
+      }
+      .image-container img:hover {
+        transform: scale(1.5); /* Zoom saat hover */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="d-flex">
+      <nav
+        class="sidebar bg-dark text-white p-3"
+        style="width: 250px; height: 100vh; position: fixed; z-index: 10"
+      >
+        <a class="navbar-brand d-flex align-items-center mb-4" href="#">
+          <img src="/static/logo.png" alt="PLN Logo" width="35" class="me-3" />
+          <span class="fw-bold">UP3 SINGKAWANG</span>
+        </a>
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link text-white" href="#" data-section="input"
+              ><i class="bi bi-grid-1x2-fill me-2"></i>Dashboard</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white active" href="#" data-section="input"
+              ><i class="bi bi-pencil-square me-2"></i>Data KWH</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="#" data-section="logout"
+              ><i class="bi bi-box-arrow-right me-2"></i>Log Out</a
+            >
+          </li>
+        </ul>
+      </nav>
+
+      <main class="main-content flex-grow-1" style="margin-left: 250px">
+        <div class="header-gradient"></div>
+
+        <div class="container-fluid py-4">
+          <div class="header-title mb-4">
+            <h4 class="mb-0 fw-bold">Sistem Deteksi Angka Stand KWH Meter</h4>
+            <p>
+              Selamat datang! Kelola dan verifikasi data KWH meter Anda di sini.
+            </p>
+          </div>
+
+          <div class="card shadow-lg">
+            <div class="card-body">
+              <div
+                class="d-flex justify-content-between align-items-center mb-3"
+              >
+                <div class="btn-group" role="group">
+                  <button
+                    class="btn btn-outline-primary filter-btn active"
+                    data-filter="all"
+                  >
+                    Semua Data
+                  </button>
+                  <button
+                    class="btn btn-outline-primary filter-btn"
+                    data-filter="unverified"
+                  >
+                    Belum Diverifikasi
+                  </button>
+                  <button
+                    class="btn btn-outline-primary filter-btn"
+                    data-filter="sesuai"
+                  >
+                    Sesuai
+                  </button>
+                  <button
+                    class="btn btn-outline-primary filter-btn"
+                    data-filter="tidak"
+                  >
+                    Tidak Sesuai
+                  </button>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <button
+                    class="btn btn-outline-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#uploadModal"
+                  >
+                    <i class="bi bi-upload me-2"></i>Upload Gambar KWH
+                  </button>
+                  <button
+                    class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#downloadModal"
+                  >
+                    <i class="bi bi-download me-2"></i>Download Gambar KWH
+                  </button>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table table-hover table-striped" id="db-table">
+                  <thead>
+                    <tr>
+                      <th>NO</th>
+                      <th>BLTH</th>
+                      <th>IDPEL</th>
+                      <th>KETERANGAN</th>
+                      <th>SAHLWBP</th>
+                      <th>SAI</th>
+                      <th>STAND_VERIFIKASI</th>
+                      <th>ANOTASI</th>
+                      <th>VERIFIKASI</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td colspan="9" class="text-center text-muted py-5">
+                        <div
+                          class="spinner-border spinner-border-sm"
+                          role="status"
+                        >
+                          <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <span class="ms-2">Memuat data...</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <div
+      class="modal fade"
+      id="uploadModal"
+      tabindex="-1"
+      aria-labelledby="uploadModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header" id="uploadModalHeader" style="cursor: move">
+            <h5 class="modal-title" id="uploadModalLabel">
+              Unggah Gambar KWH Meter
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="upload-form">
+              <div class="mb-3">
+                <label for="image-input" class="form-label"
+                  >Pilih File Gambar (Bisa lebih dari satu)</label
+                >
+                <input
+                  class="form-control"
+                  type="file"
+                  id="image-input"
+                  name="images"
+                  multiple
+                  accept="image/*"
+                  required
+                />
+              </div>
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-gear-fill me-2"></i>Proses Gambar
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="downloadModal"
+      tabindex="-1"
+      aria-labelledby="downloadModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content">
+          <div
+            class="modal-header"
+            id="downloadModalHeader"
+            style="cursor: move"
+          >
+            <h5 class="modal-title" id="downloadModalLabel">
+              Download & Proses Otomatis
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="download-form">
+              <div class="mb-3">
+                <label for="jsessionid" class="form-label">JSESSIONID</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="jsessionid"
+                  name="jsessionid"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="poolacmt" class="form-label">Pool_ACMTJava</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="poolacmt"
+                  name="poolacmt"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="blth" class="form-label"
+                  >BLTH (Pisahkan dengan spasi/koma)</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="blth"
+                  name="blth"
+                  placeholder="Contoh: 202509 202508"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="excel-file" class="form-label"
+                  >File Excel IDPEL</label
+                >
+                <input
+                  class="form-control"
+                  type="file"
+                  id="excel-file"
+                  name="excel_file"
+                  required
+                  accept=".xlsx, .xls"
+                />
+              </div>
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-play-circle-fill me-2"></i>Mulai Proses
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="resultsModal"
+      tabindex="-1"
+      aria-labelledby="resultsModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+          <div
+            class="modal-header"
+            id="resultsModalHeader"
+            style="cursor: move"
+          >
+            <h5 class="modal-title" id="resultsModalLabel">Hasil Analisis</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div
+              id="loading-spinner"
+              class="text-center my-5"
+              style="display: none"
+            >
+              <div
+                class="spinner-border text-primary"
+                style="width: 3rem; height: 3rem"
+                role="status"
+              >
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-3 text-muted">Sedang memproses, harap tunggu...</p>
+            </div>
+            <div id="results-content"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="imageModal"
+      tabindex="-1"
+      aria-labelledby="imageModalLabel"
+      aria-hidden="true"
+    >
+      <div
+        class="modal-dialog modal-dialog-image modal-xl modal-dialog-centered"
+      >
+        <div class="modal-content">
+          <div class="modal-header" id="imageModalHeader" style="cursor: move">
+            <h5 class="modal-title" id="imageModalLabel">Gambar Anotasi</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-8 text-center">
+                <div
+                  class="image-container"
+                  style="overflow: auto; max-height: 60vh"
+                >
+                  <img
+                    id="modalImage"
+                    src=""
+                    class="img-fluid"
+                    alt="Gambar Anotasi"
+                    loading="lazy"
+                    style="transition: transform 0.3s ease"
+                  />
+                </div>
+                <div class="mt-2">
+                  <button id="zoom-in" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-zoom-in"></i>
+                  </button>
+                  <button
+                    id="zoom-out"
+                    class="btn btn-sm btn-outline-secondary"
+                  >
+                    <i class="bi bi-zoom-out"></i>
+                  </button>
+                  <button
+                    id="zoom-reset"
+                    class="btn btn-sm btn-outline-secondary"
+                  >
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <h6>Verifikasi Data</h6>
+                <div class="mb-2">
+                  <label for="ket-select">Keterangan</label>
+                  <select id="ket-select" class="form-select">
+                    <option value="kwh_jelas">KWH Jelas</option>
+                    <option value="kwh_buram">KWH Buram</option>
+                    <option value="bukan_kwh">Bukan KWH</option>
+                    <option value="gagal_deteksi">Gagal Deteksi</option>
+                  </select>
+                </div>
+                <div class="mb-2">
+                  <label for="stand-ver-input">Stand Verifikasi</label>
+                  <input
+                    id="stand-ver-input"
+                    type="text"
+                    class="form-control"
+                  />
+                </div>
+                <div class="mb-2">
+                  <label for="ver-select">Verifikasi</label>
+                  <select id="ver-select" class="form-select">
+                    <option value="">-</option>
+                    <option value="sesuai">Sesuai</option>
+                    <option value="tidak">Tidak</option>
+                  </select>
+                </div>
+                <button id="save-modal" class="btn btn-primary">Simpan</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+      const navLinks = document.querySelectorAll(".nav-link");
+      const loadingSpinner = document.getElementById("loading-spinner");
+      const resultsContent = document.getElementById("results-content");
+
+      document.addEventListener("DOMContentLoaded", () => loadDatabase("all"));
+
+      navLinks.forEach((link) => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          navLinks.forEach((l) => l.classList.remove("active"));
+          link.classList.add("active");
+        });
+      });
+
+      document.querySelectorAll(".filter-btn").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          document
+            .querySelectorAll(".filter-btn")
+            .forEach((b) => b.classList.remove("active"));
+          e.target.classList.add("active");
+          const filter = e.target.dataset.filter;
+          loadDatabase(filter);
+        });
+      });
+
+      document.getElementById("upload-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        handleFormSubmit(
+          document.getElementById("upload-form"),
+          "/api/process_upload"
+        );
+      });
+
+      document
+        .getElementById("download-form")
+        .addEventListener("submit", (e) => {
+          e.preventDefault();
+          handleFormSubmit(
+            document.getElementById("download-form"),
+            "/api/download_and_process"
+          );
+        });
+
+      async function handleFormSubmit(formElement, apiUrl) {
+        const resultsModal = new bootstrap.Modal(
+          document.getElementById("resultsModal")
+        );
+        resultsModal.show();
+        loadingSpinner.style.display = "block";
+        resultsContent.innerHTML = "";
+        const formData = new FormData(formElement);
+        try {
+          const response = await fetch(apiUrl, {
+            method: "POST",
+            body: formData,
+          });
+          const results = await response.json();
+          if (!response.ok)
+            throw new Error(
+              results.error || `Terjadi kesalahan HTTP: ${response.status}`
+            );
+          displayResults(results);
+          const uploadModal = bootstrap.Modal.getInstance(
+            document.getElementById("uploadModal")
+          );
+          const downloadModal = bootstrap.Modal.getInstance(
+            document.getElementById("downloadModal")
+          );
+          if (uploadModal) uploadModal.hide();
+          if (downloadModal) downloadModal.hide();
+          loadDatabase(
+            document.querySelector(".filter-btn.active").dataset.filter || "all"
+          );
+        } catch (error) {
+          resultsContent.innerHTML = `<div class="alert alert-danger"><strong>Error:</strong> ${error.message}</div>`;
+        } finally {
+          loadingSpinner.style.display = "none";
+        }
+      }
+
+      function displayResults(results) {
+        if (results.length === 0) {
+          resultsContent.innerHTML = `<div class="alert alert-danger">Tidak ada data yang ditemukan. Pastikan terdapat kolom IDPEL pada file excel.</div>`;
+          return;
+        }
+        const resultGrid = document.createElement("div");
+        resultGrid.className = "row g-3";
+
+        results.forEach((result) => {
+          const col = document.createElement("div");
+          col.className = "col-lg-3 col-md-4 col-sm-6";
+
+          if (result.is_error) {
+            col.innerHTML = `
+        <div class="card h-100 shadow-sm border-danger card-result">
+          <div class="card-body d-flex flex-column p-3 text-center justify-content-center">
+            <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 2.5rem;"></i>
+            <h6 class="card-title small text-truncate mt-3" title="${result.filename}">${result.filename}</h6>
+            <p class="card-text small text-danger mt-1 mb-0">${result.result_text}</p>
+          </div>
+        </div>
+      `;
+          } else {
+            col.innerHTML = `
+        <div class="card h-100 shadow-sm card-result">
+          <img src="${
+            result.result_image_url
+          }?t=${new Date().getTime()}" class="card-img-top" alt="Hasil Proses" style="height: 180px; object-fit: cover;">
+          <div class="card-body d-flex flex-column p-2">
+            <h6 class="card-title small text-truncate mb-1" title="${
+              result.filename
+            }">${result.filename}</h6>
+            <p class="card-text small bg-light p-2 rounded text-monospace mt-1">${
+              result.result_text
+            }</p>
+            ${
+              result.result_image_url
+                ? `<button class="btn btn-sm btn-outline-primary mt-auto w-100 view-full-image" data-src="${result.result_image_url}">Lihat Detail</button>`
+                : ""
+            }
+          </div>
+        </div>
+      `;
+          }
+          resultGrid.appendChild(col);
+        });
+
+        resultsContent.appendChild(resultGrid);
+
+        document.querySelectorAll(".view-full-image").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            const src = e.currentTarget.dataset.src;
+            document.getElementById("modalImage").src = src;
+            const imageModal = new bootstrap.Modal(
+              document.getElementById("imageModal")
+            );
+            imageModal.show();
+          });
+        });
+      }
+
+      async function loadDatabase(filter) {
+        try {
+          const response = await fetch(`/api/view_database?filter=${filter}`);
+          const data = await response.json();
+          const tbody = document.querySelector("#db-table tbody");
+
+          if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-5">Tidak ada data untuk filter "${filter}".</td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = "";
+          data.forEach((row, index) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                  <td>${index + 1}</td>
+                  <td>${row.BLTH || ""}</td>
+                  <td>${row.IDPEL || ""}</td>
+                  <td class="text-truncate" style="max-width: 150px;">${
+                    row.KET || ""
+                  }</td>
+                  <td>${row.SAHLWBP || ""}</td>
+                  <td>${row.SAI || ""}</td>
+                  <td>${row.STAND_VERIFIKASI || ""}</td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary view-image" data-src="${
+                      row.ANOTASI
+                    }" data-blth="${row.BLTH}" data-idpel="${
+              row.IDPEL
+            }" data-sahlwbp="${row.SAHLWBP}" data-sai="${row.SAI}" data-ket="${
+              row.KET
+            }" data-stand_verifikasi="${row.STAND_VERIFIKASI}" data-ver="${
+              row.VER
+            }">
+                      <i class="bi bi-image"></i>
+                    </button>
+                  </td>
+                  <td>${row.VER || ""}</td>
+                `;
+            tbody.appendChild(tr);
+          });
+
+          document.querySelectorAll(".view-image").forEach((btn) => {
+            btn.addEventListener("click", (e) => {
+              const currentBtn = e.currentTarget;
+              const src = currentBtn.dataset.src;
+              const blth = currentBtn.dataset.blth;
+              const idpel = currentBtn.dataset.idpel;
+              const sahlwbp = currentBtn.dataset.sahlwbp;
+              const sai = currentBtn.dataset.sai;
+              const ket = currentBtn.dataset.ket;
+              const stand_verifikasi =
+                sai || currentBtn.dataset.stand_verifikasi; // Prioritas SAI
+              const ver = "sesuai"; // Selalu default ke 'sesuai' saat klik
+
+              document.getElementById("modalImage").src = src;
+
+              const modalTitle = document.getElementById("imageModalLabel");
+              modalTitle.textContent = `Anotasi - IDPEL: ${idpel}`;
+
+              // Set values di form verifikasi
+              document.getElementById("ket-select").value = ket || "kwh_jelas";
+              document.getElementById("stand-ver-input").value =
+                stand_verifikasi || sai; // Otomatis isi STAND_VERIFIKASI dengan SAI
+              document.getElementById("ver-select").value = ver; // Selalu set ke 'sesuai'
+
+              const modal = new bootstrap.Modal(
+                document.getElementById("imageModal")
+              );
+              modal.show();
+
+              // Event untuk auto update VER saat edit STAND_VERIFIKASI
+              document
+                .getElementById("stand-ver-input")
+                .addEventListener("input", () => {
+                  const newStandVer =
+                    document.getElementById("stand-ver-input").value;
+                  if (newStandVer === sahlwbp) {
+                    document.getElementById("ver-select").value = "sesuai";
+                  } else {
+                    document.getElementById("ver-select").value = "tidak";
+                  }
+                });
+
+              // Simpan saat click simpan
+              document.getElementById("save-modal").onclick = () => {
+                saveModalData(blth, idpel);
+                modal.hide();
+              };
+
+              // Simpan saat close modal
+              document.getElementById("imageModal").addEventListener(
+                "hidden.bs.modal",
+                () => {
+                  saveModalData(blth, idpel);
+                },
+                { once: true }
+              );
+            });
+          });
+        } catch (error) {
+          Swal.fire({
+            icon: "error",
+            title: "Gagal Memuat Data",
+            text: `Terjadi kesalahan: ${error.message}`,
+            confirmButtonColor: "#11909b",
+          });
+        }
+      }
+
+      async function saveModalData(blth, idpel) {
+        const ket = document.getElementById("ket-select").value;
+        const stand_verifikasi =
+          document.getElementById("stand-ver-input").value;
+        const ver = document.getElementById("ver-select").value;
+
+        try {
+          const response = await fetch("/api/update_ver", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ blth, idpel, ver, ket, stand_verifikasi }),
+          });
+          const result = await response.json();
+          if (result.success) {
+            // Tidak menampilkan pesan sukses
+            loadDatabase(
+              document.querySelector(".filter-btn.active").dataset.filter ||
+                "all"
+            );
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Gagal",
+              text: `Gagal menyimpan perubahan: ${result.error}`,
+              confirmButtonColor: "#11909b",
+            });
+          }
+        } catch (error) {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: `Terjadi kesalahan: ${error.message}`,
+            confirmButtonColor: "#11909b",
+          });
+        }
+      }
+
+      // Zoom functionality
+      let scale = 1; // Default tanpa zoom
+      const modalImage = document.getElementById("modalImage");
+
+      document.getElementById("zoom-in").addEventListener("click", () => {
+        scale += 0.5;
+        modalImage.style.transform = `scale(${scale})`;
+      });
+
+      document.getElementById("zoom-out").addEventListener("click", () => {
+        scale -= 0.5;
+        if (scale < 0.1) scale = 0.1;
+        modalImage.style.transform = `scale(${scale})`;
+      });
+
+      document.getElementById("zoom-reset").addEventListener("click", () => {
+        scale = 1; // Reset ke ukuran normal
+        modalImage.style.transform = `scale(${scale})`;
+      });
+
+      function makeModalDraggable(headerId, modalId) {
+        const modalHeader = document.getElementById(headerId);
+        const modalDialog = document.querySelector(`${modalId} .modal-dialog`);
+        let isDragging = false;
+        let startX, startY, initialX, initialY;
+
+        if (modalHeader && modalDialog) {
+          modalHeader.addEventListener("mousedown", (e) => {
+            if (e.target.classList.contains("btn-close")) return;
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            const rect = modalDialog.getBoundingClientRect();
+            initialX = rect.left;
+            initialY = rect.top;
+
+            modalDialog.style.margin = "0";
+            modalDialog.style.transform = "none";
+
+            document.addEventListener("mousemove", drag);
+            document.addEventListener("mouseup", stopDrag);
+          });
+        }
+
+        function drag(e) {
+          if (isDragging) {
+            e.preventDefault();
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            modalDialog.style.left = `${initialX + dx}px`;
+            modalDialog.style.top = `${initialY + dy}px`;
+          }
+        }
+
+        function stopDrag() {
+          isDragging = false;
+          document.removeEventListener("mousemove", drag);
+          document.removeEventListener("mouseup", stopDrag);
+        }
+      }
+
+      makeModalDraggable("imageModalHeader", "#imageModal");
+      makeModalDraggable("uploadModalHeader", "#uploadModal");
+      makeModalDraggable("downloadModalHeader", "#downloadModal");
+      makeModalDraggable("resultsModalHeader", "#resultsModal");
+
+      document
+        .getElementById("resultsModal")
+        .addEventListener("hidden.bs.modal", async () => {
+          try {
+            const response = await fetch("/api/cleanup_uploads", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+            });
+            const result = await response.json();
+            if (result.success) {
+              console.log("Folder uploads berhasil dibersihkan.");
+            } else {
+              console.error("Gagal membersihkan folder uploads:", result.error);
+            }
+          } catch (error) {
+            console.error(
+              "Error saat membersihkan folder uploads:",
+              error.message
+            );
+          }
+        });
+    </script>
+  </body>
+</html>
